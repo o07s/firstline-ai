@@ -30,7 +30,11 @@ const TIMEFRAMES = [
   { value: "all",   label: "All Time"  },
 ];
 
-// ── Helpers ────────────────────────────────────────────────────────────────────────────
+// Calendar constants
+const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const DOW_LABELS  = ["Su","Mo","Tu","We","Th","Fr","Sa"];
+
+// ── Helpers ────────────────────────────────────────────
 function filterLogsByTimeframe(logs, timeframe) {
   const now = new Date();
   const fmt = d => d.toISOString().slice(0, 10);
@@ -68,7 +72,97 @@ function openWhatsApp(phone, name) {
   window.open(`https://wa.me/${cleaned}?text=${msg}`, "_blank");
 }
 
-// ── Timeframe Toggle ─────────────────────────────────────────────────────────
+// ── Rep Calendar ────────────────────────────────────────────────────────────────────────────
+function RepCalendar({ rep, trackingData, month, onDayClick, onPrevMonth, onNextMonth }) {
+  const year = month.getFullYear();
+  const mon  = month.getMonth();
+  const todayStr    = new Date().toISOString().slice(0, 10);
+  const daysInMonth = new Date(year, mon + 1, 0).getDate();
+  const firstDow    = new Date(year, mon, 1).getDay();
+  const rc = REP_COLORS[rep];
+
+  const cells = [];
+  for (let i = 0; i < firstDow; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+
+  return (
+    <div style={{ flex: 1, minWidth: 270, background: "#111", border: `1px solid ${rc.main}44`, borderRadius: 14, padding: "16px 14px" }}>
+      {/* Rep name + month navigation */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+        <button onClick={onPrevMonth} style={{ background: "none", border: "none", color: "#555", cursor: "pointer", fontSize: 22, lineHeight: 1, padding: "0 6px" }}>‹</button>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontWeight: 700, fontSize: 15, color: rc.dot }}>{rep}</div>
+          <div style={{ fontSize: 11, color: "#555", marginTop: 2 }}>{MONTH_NAMES[mon]} {year}</div>
+        </div>
+        <button onClick={onNextMonth} style={{ background: "none", border: "none", color: "#555", cursor: "pointer", fontSize: 22, lineHeight: 1, padding: "0 6px" }}>›</button>
+      </div>
+
+      {/* Day-of-week headers */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 2, marginBottom: 4 }}>
+        {DOW_LABELS.map(d => (
+          <div key={d} style={{ fontSize: 9, color: "#333", textAlign: "center", fontWeight: 600, padding: "2px 0", letterSpacing: 0.5 }}>{d}</div>
+        ))}
+      </div>
+
+      {/* Day cells */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 3 }}>
+        {cells.map((day, idx) => {
+          if (!day) return <div key={idx} style={{ height: 34 }} />;
+          const dateStr = `${year}-${String(mon + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+          const entry   = trackingData.find(t => t.rep === rep && t.date === dateStr);
+          const isToday = dateStr === todayStr;
+          const isPast  = dateStr < todayStr;
+
+          let bg = "transparent", border = "1px solid transparent", shadow = "none", color = "#444";
+
+          if (entry?.is_done) {
+            bg = "#0a2a15"; border = "1px solid #2a7a3a"; shadow = "0 0 10px #3dd68c55"; color = "#3dd68c";
+          } else if (entry?.todos && isPast && !isToday) {
+            bg = "#2a0a0a"; border = "1px solid #7a2a2a"; shadow = "0 0 10px #ff6b6b55"; color = "#ff6b6b";
+          } else if (entry?.todos && isToday) {
+            bg = "#0a1a2a"; border = `1px solid ${rc.main}`; color = rc.dot;
+          } else if (entry?.todos) {
+            bg = "#181818"; border = "1px solid #2a2a2a"; color = "#777";
+          } else if (isToday) {
+            border = `1px solid ${rc.main}88`; color = rc.dot;
+          }
+
+          return (
+            <div
+              key={idx}
+              onClick={() => onDayClick(rep, dateStr, entry)}
+              title={entry ? (entry.is_done ? "Complete ✓" : entry.todos ? "Has todos" : "") : "Click to add todos"}
+              style={{
+                cursor: "pointer", background: bg, border, borderRadius: 5, boxShadow: shadow,
+                height: 34, display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 12, fontWeight: isToday ? 700 : 400, color, transition: "all .15s",
+              }}
+            >
+              {day}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Legend */}
+      <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "center", flexWrap: "wrap" }}>
+        {[
+          { color: "#3dd68c", label: "Done" },
+          { color: "#ff6b6b", label: "Missed" },
+          { color: rc.dot,    label: "Today" },
+          { color: "#777",    label: "Planned" },
+        ].map(({ color, label }) => (
+          <div key={label} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 10, color: "#444" }}>
+            <div style={{ width: 7, height: 7, borderRadius: "50%", background: color }} />
+            {label}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Timeframe Toggle ─────────────────────────────────────────────────────────────
 function TimeframeToggle({ value, onChange }) {
   return (
     <div style={{ display: "flex", gap: 3, background: "#0d0d0d", borderRadius: 9, padding: 3, border: "1px solid #1a1a1a", width: "fit-content", marginBottom: 16 }}>
@@ -91,7 +185,7 @@ function TimeframeToggle({ value, onChange }) {
   );
 }
 
-// ── Donut Chart ──────────────────────────────────────────────────────────────
+// ── Donut Chart ────────────────────────────────────────────────────────────────────────────
 function DonutChart({ callLogs, timeframe }) {
   const size = 180, cx = 90, cy = 90, R = 72, r = 48;
 
@@ -157,7 +251,7 @@ function DonutChart({ callLogs, timeframe }) {
   );
 }
 
-// ── UI Primitives ────────────────────────────────────────────────────────────
+// ── UI Primitives ────────────────────────────────────────────────────────────────────────────
 function Badge({ stage }) {
   const c = STAGE_COLORS[stage] || STAGE_COLORS["New Lead"];
   return <span style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600, whiteSpace: "nowrap" }}>{stage}</span>;
@@ -206,7 +300,7 @@ const BTN = {
   danger:    { background: "#1e0a0a", color: "#ff6b6b", border: "1px solid #4a1a1a", borderRadius: 8, padding: "7px 14px", fontWeight: 500, fontSize: 13, cursor: "pointer" },
 };
 
-// ── Main App ─────────────────────────────────────────────────────────────────
+// ── Main App ─────────────────────────────────────────────────────────────────────────────
 export default function App() {
   const [tab, setTab]                 = useState("metrics");
   const [leads, setLeads]             = useState([]);
@@ -223,19 +317,29 @@ export default function App() {
   const [saving, setSaving]           = useState(false);
   const [error, setError]             = useState(null);
 
-  // ── Load data ──────────────────────────────────────────────────────────────────────
+  // Tracking state
+  const [trackingData, setTrackingData]   = useState([]);
+  const [showDayModal, setShowDayModal]   = useState(false);
+  const [selectedDay, setSelectedDay]     = useState(null);
+  const [dayForm, setDayForm]             = useState({ todos: "", completed_notes: "", is_done: false });
+  const [calMonth, setCalMonth]           = useState(() => { const d = new Date(); d.setDate(1); d.setHours(0,0,0,0); return d; });
+  const [savingDay, setSavingDay]         = useState(false);
+
+  // ── Load data ──────────────────────────────────────────────────────────────────────────
   const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [{ data: leadsData, error: le }, { data: logsData, error: loge }] = await Promise.all([
+      const [{ data: leadsData, error: le }, { data: logsData, error: loge }, { data: trackData }] = await Promise.all([
         supabase.from("leads").select("*").order("created_at", { ascending: false }),
         supabase.from("call_logs").select("*").order("created_at", { ascending: false }),
+        supabase.from("daily_tracking").select("*"),
       ]);
       if (le)   throw le;
       if (loge) throw loge;
       setLeads(leadsData || []);
       setCallLogs(logsData || []);
+      setTrackingData(trackData || []);
     } catch (e) {
       setError("Could not connect to database: " + e.message);
     }
@@ -243,10 +347,10 @@ export default function App() {
   }, []);
   useEffect(() => { loadData(); }, [loadData]);
 
-  // ── Filtered call logs by timeframe ─────────────────────────────────────────
+  // ── Filtered call logs by timeframe ───────────────────────────────────────────
   const filteredCallLogs = filterLogsByTimeframe(callLogs, callsTimeframe);
 
-  // ── Metrics (all respect the timeframe filter) ────────────────────────────
+  // ── Metrics (all respect the timeframe filter) ────────────────────────────────────────────
   const totalCalls     = filteredCallLogs.reduce((s, l) => s + Number(l.calls     || 0), 0);
   const totalConnected = filteredCallLogs.reduce((s, l) => s + Number(l.connected || 0), 0);
   const totalDemos     = filteredCallLogs.reduce((s, l) => s + Number(l.demos     || 0), 0);
@@ -256,7 +360,7 @@ export default function App() {
   const pipelineValue  = leads.filter(l => l.stage !== "Closed Lost").reduce((s, l) => s + Number(l.value || 0), 0);
   const wonValue       = leads.filter(l => l.stage === "Closed Won").reduce((s, l) => s + Number(l.value || 0), 0);
 
-  // ── Leaderboard (respects timeframe) ─────────────────────────────────────────
+  // ── Leaderboard (respects timeframe) ──────────────────────────────────────────────────
   const repStats = REPS.map(rep => {
     const logs      = filteredCallLogs.filter(l => l.rep === rep);
     const calls     = logs.reduce((s, l) => s + Number(l.calls     || 0), 0);
@@ -267,16 +371,16 @@ export default function App() {
     return { rep, calls, connected, demos, closes, won };
   }).sort((a, b) => b.closes - a.closes || b.calls - a.calls);
 
-  // ── Filtered leads ─────────────────────────────────────────────────────
+  // ── Filtered leads ───────────────────────────────────────────────────────────────────────────
   const filteredLeads = leads.filter(l =>
     (filterStage === "All" || l.stage === filterStage) &&
     (filterRep   === "All" || l.rep   === filterRep)
   );
 
-  // ── Interested leads for follow-up tracker ────────────────────────────────────
+  // ── Interested leads for follow-up tracker ────────────────────────────────────────────
   const interestedLeads = leads.filter(l => l.stage === "Interested");
 
-  // ── Lead CRUD ──────────────────────────────────────────────────────────────────
+  // ── Lead CRUD ────────────────────────────────────────────────────────────────────────────────
   function openAddLead() { setLeadForm(EMPTY_LEAD); setEditLead(null); setShowAddLead(true); }
   function openEditLead(lead) {
     setLeadForm({ name: lead.name, company: lead.company || "", phone: lead.phone || "", stage: lead.stage, rep: lead.rep, notes: lead.notes || "", value: lead.value || "" });
@@ -327,7 +431,7 @@ export default function App() {
     setLeads(prev => prev.map(l => l.id === id ? { ...l, ...payload } : l));
   }
 
-  // ── Call log ────────────────────────────────────────────────────────────────────
+  // ── Call log ────────────────────────────────────────────────────────────────────────────────
   async function saveLog() {
     if (!logForm.calls) return;
     setSaving(true);
@@ -343,10 +447,45 @@ export default function App() {
     setLogForm(EMPTY_LOG);
   }
 
+  // ── Day tracking ─────────────────────────────────────────────────────────────────────────
+  function openDayModal(rep, dateStr, existingEntry) {
+    setSelectedDay({ rep, date: dateStr });
+    setDayForm({
+      todos:           existingEntry?.todos           || "",
+      completed_notes: existingEntry?.completed_notes || "",
+      is_done:         existingEntry?.is_done         || false,
+    });
+    setShowDayModal(true);
+  }
+
+  async function saveDayEntry() {
+    if (!selectedDay) return;
+    setSavingDay(true);
+    const { data, error } = await supabase
+      .from("daily_tracking")
+      .upsert(
+        { rep: selectedDay.rep, date: selectedDay.date, todos: dayForm.todos, completed_notes: dayForm.completed_notes, is_done: dayForm.is_done },
+        { onConflict: "rep,date" }
+      )
+      .select().single();
+    if (!error && data) {
+      setTrackingData(prev => {
+        const rest = prev.filter(t => !(t.rep === selectedDay.rep && t.date === selectedDay.date));
+        return [...rest, data];
+      });
+    }
+    setSavingDay(false);
+    setShowDayModal(false);
+  }
+
+  function prevMonth() { setCalMonth(m => { const d = new Date(m); d.setMonth(d.getMonth() - 1); return d; }); }
+  function nextMonth() { setCalMonth(m => { const d = new Date(m); d.setMonth(d.getMonth() + 1); return d; }); }
+
   const TABS = [
     { id: "metrics",     label: "📊 Metrics"     },
     { id: "pipeline",    label: "🏗️ Pipeline"    },
     { id: "leaderboard", label: "🏆 Leaderboard" },
+    { id: "tracking",    label: "📅 Tracking"    },
   ];
   const selStyle = { padding: "7px 12px", borderRadius: 7, border: "1px solid #2a2a2a", background: "#111", color: "#bbb", fontSize: 13 };
   const tfLabel  = TIMEFRAMES.find(t => t.value === callsTimeframe)?.label || "";
@@ -705,6 +844,33 @@ export default function App() {
             </div>
           </div>
         )}
+
+        {/* ── TRACKING ── */}
+        {tab === "tracking" && (
+          <div>
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontWeight: 700, fontSize: 17, color: "#d0d0d0", marginBottom: 6 }}>📅 Daily Tracking</div>
+              <div style={{ fontSize: 13, color: "#444" }}>
+                Click any day to write your to-do's and log what you got done.
+                Days auto-turn <span style={{ color: "#ff6b6b" }}>red</span> if uncompleted and past,
+                <span style={{ color: "#3dd68c" }}> green</span> when you mark them done.
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+              {REPS.map(rep => (
+                <RepCalendar
+                  key={rep}
+                  rep={rep}
+                  trackingData={trackingData}
+                  month={calMonth}
+                  onDayClick={openDayModal}
+                  onPrevMonth={prevMonth}
+                  onNextMonth={nextMonth}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ── ADD/EDIT LEAD MODAL ── */}
@@ -756,6 +922,56 @@ export default function App() {
             <button style={BTN.secondary} onClick={() => { setShowLogCall(false); setLogForm(EMPTY_LOG); }}>Cancel</button>
             <button style={{ ...BTN.primary, opacity: saving ? 0.6 : 1 }} onClick={saveLog} disabled={saving}>
               {saving ? "Saving…" : "Log Session"}
+            </button>
+          </div>
+        </Modal>
+      )}
+
+      {/* ── DAY TRACKING MODAL ── */}
+      {showDayModal && selectedDay && (
+        <Modal
+          title={`${selectedDay.rep} — ${new Date(selectedDay.date + "T12:00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}`}
+          onClose={() => setShowDayModal(false)}
+        >
+          {/* Status indicator */}
+          {dayForm.is_done && (
+            <div style={{ background: "#0a2a15", border: "1px solid #2a7a3a", borderRadius: 8, padding: "8px 12px", marginBottom: 14, fontSize: 13, color: "#3dd68c", fontWeight: 600 }}>
+              ✓ This day is marked complete
+            </div>
+          )}
+
+          <div style={{ fontSize: 12, color: "#555", marginBottom: 6, fontWeight: 500 }}>📝 To-do's for the day</div>
+          <textarea
+            value={dayForm.todos}
+            onChange={e => setDayForm(f => ({ ...f, todos: e.target.value }))}
+            placeholder={"What do you need to get done today?\n\n- \n- \n- "}
+            style={{ width: "100%", minHeight: 110, padding: "9px 11px", borderRadius: 7, border: "1px solid #2a2a2a", background: "#0d0d0d", color: "#e0e0e0", fontSize: 13, boxSizing: "border-box", resize: "vertical", fontFamily: "inherit", lineHeight: 1.6 }}
+          />
+
+          <div style={{ fontSize: 12, color: "#555", marginBottom: 6, fontWeight: 500, marginTop: 16 }}>✅ What I got done</div>
+          <textarea
+            value={dayForm.completed_notes}
+            onChange={e => setDayForm(f => ({ ...f, completed_notes: e.target.value }))}
+            placeholder={"What did you actually accomplish today?\n\n- \n- \n- "}
+            style={{ width: "100%", minHeight: 110, padding: "9px 11px", borderRadius: 7, border: "1px solid #2a2a2a", background: "#0d0d0d", color: "#e0e0e0", fontSize: 13, boxSizing: "border-box", resize: "vertical", fontFamily: "inherit", lineHeight: 1.6 }}
+          />
+
+          <label style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 18, cursor: "pointer", padding: "10px 12px", background: dayForm.is_done ? "#0a2a15" : "#111", borderRadius: 8, border: `1px solid ${dayForm.is_done ? "#2a7a3a" : "#2a2a2a"}`, transition: "all .2s" }}>
+            <input
+              type="checkbox"
+              checked={dayForm.is_done}
+              onChange={e => setDayForm(f => ({ ...f, is_done: e.target.checked }))}
+              style={{ width: 16, height: 16, cursor: "pointer", accentColor: "#3dd68c" }}
+            />
+            <span style={{ fontSize: 13, color: dayForm.is_done ? "#3dd68c" : "#888", fontWeight: 600 }}>
+              {dayForm.is_done ? "✓ Marked as complete — day will glow green" : "Mark this day as complete"}
+            </span>
+          </label>
+
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 16 }}>
+            <button style={BTN.secondary} onClick={() => setShowDayModal(false)}>Cancel</button>
+            <button style={{ ...BTN.primary, opacity: savingDay ? 0.6 : 1 }} onClick={saveDayEntry} disabled={savingDay}>
+              {savingDay ? "Saving…" : "Save"}
             </button>
           </div>
         </Modal>
