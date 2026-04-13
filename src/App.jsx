@@ -72,7 +72,7 @@ function openWhatsApp(phone, name) {
   window.open(`https://wa.me/${cleaned}?text=${msg}`, "_blank");
 }
 
-// ── Rep Calendar ────────────────────────────────────────────────────────────────────────────
+// ── Rep Calendar ─────────────────────────────────────────────
 function RepCalendar({ rep, trackingData, month, onDayClick, onPrevMonth, onNextMonth }) {
   const year = month.getFullYear();
   const mon  = month.getMonth();
@@ -162,7 +162,7 @@ function RepCalendar({ rep, trackingData, month, onDayClick, onPrevMonth, onNext
   );
 }
 
-// ── Timeframe Toggle ─────────────────────────────────────────────────────────────
+// ── Timeframe Toggle ─────────────────────────────────────────────
 function TimeframeToggle({ value, onChange }) {
   return (
     <div style={{ display: "flex", gap: 3, background: "#0d0d0d", borderRadius: 9, padding: 3, border: "1px solid #1a1a1a", width: "fit-content", marginBottom: 16 }}>
@@ -185,7 +185,7 @@ function TimeframeToggle({ value, onChange }) {
   );
 }
 
-// ── Donut Chart ────────────────────────────────────────────────────────────────────────────
+// ── Donut Chart ──────────────────────────────────────────────
 function DonutChart({ callLogs, timeframe }) {
   const size = 180, cx = 90, cy = 90, R = 72, r = 48;
 
@@ -251,7 +251,7 @@ function DonutChart({ callLogs, timeframe }) {
   );
 }
 
-// ── UI Primitives ────────────────────────────────────────────────────────────────────────────
+// ── UI Primitives ────────────────────────────────────────────
 function Badge({ stage }) {
   const c = STAGE_COLORS[stage] || STAGE_COLORS["New Lead"];
   return <span style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}`, borderRadius: 20, padding: "2px 10px", fontSize: 11, fontWeight: 600, whiteSpace: "nowrap" }}>{stage}</span>;
@@ -300,7 +300,7 @@ const BTN = {
   danger:    { background: "#1e0a0a", color: "#ff6b6b", border: "1px solid #4a1a1a", borderRadius: 8, padding: "7px 14px", fontWeight: 500, fontSize: 13, cursor: "pointer" },
 };
 
-// ── Main App ─────────────────────────────────────────────────────────────────────────────
+// ── Main App ─────────────────────────────────────────────
 export default function App() {
   const [tab, setTab]                 = useState("metrics");
   const [leads, setLeads]             = useState([]);
@@ -310,8 +310,9 @@ export default function App() {
   const [editLead, setEditLead]       = useState(null);
   const [leadForm, setLeadForm]       = useState(EMPTY_LEAD);
   const [logForm, setLogForm]         = useState(EMPTY_LOG);
-  const [filterStage, setFilterStage] = useState("All");
-  const [filterRep, setFilterRep]     = useState("All");
+  const [filterStage, setFilterStage]     = useState("All");
+  const [filterRep, setFilterRep]         = useState("All");
+  const [pipelineSearch, setPipelineSearch] = useState("");
   const [callsTimeframe, setCallsTimeframe] = useState("week");
   const [loading, setLoading]         = useState(true);
   const [saving, setSaving]           = useState(false);
@@ -325,7 +326,22 @@ export default function App() {
   const [calMonth, setCalMonth]           = useState(() => { const d = new Date(); d.setDate(1); d.setHours(0,0,0,0); return d; });
   const [savingDay, setSavingDay]         = useState(false);
 
-  // ── Load data ──────────────────────────────────────────────────────────────────────────
+  // Login state
+  const [isLoggedIn, setIsLoggedIn]   = useState(false);
+  const [loginCode, setLoginCode]     = useState("");
+  const [loginShake, setLoginShake]   = useState(false);
+
+  function attemptLogin() {
+    if (loginCode === "3286472112") {
+      setIsLoggedIn(true);
+    } else {
+      setLoginShake(true);
+      setLoginCode("");
+      setTimeout(() => setLoginShake(false), 700);
+    }
+  }
+
+  // ── Load data ──────────────────────────────────────────────────
   const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -347,10 +363,10 @@ export default function App() {
   }, []);
   useEffect(() => { loadData(); }, [loadData]);
 
-  // ── Filtered call logs by timeframe ───────────────────────────────────────────
+  // ── Filtered call logs by timeframe ─────────────────────────────────────────
   const filteredCallLogs = filterLogsByTimeframe(callLogs, callsTimeframe);
 
-  // ── Metrics (all respect the timeframe filter) ────────────────────────────────────────────
+  // ── Metrics (all respect the timeframe filter) ────────────────────────────────
   const totalCalls     = filteredCallLogs.reduce((s, l) => s + Number(l.calls     || 0), 0);
   const totalConnected = filteredCallLogs.reduce((s, l) => s + Number(l.connected || 0), 0);
   const totalDemos     = filteredCallLogs.reduce((s, l) => s + Number(l.demos     || 0), 0);
@@ -360,7 +376,7 @@ export default function App() {
   const pipelineValue  = leads.filter(l => l.stage !== "Closed Lost").reduce((s, l) => s + Number(l.value || 0), 0);
   const wonValue       = leads.filter(l => l.stage === "Closed Won").reduce((s, l) => s + Number(l.value || 0), 0);
 
-  // ── Leaderboard (respects timeframe) ──────────────────────────────────────────────────
+  // ── Leaderboard (respects timeframe) ──────────────────────────────────────────
   const repStats = REPS.map(rep => {
     const logs      = filteredCallLogs.filter(l => l.rep === rep);
     const calls     = logs.reduce((s, l) => s + Number(l.calls     || 0), 0);
@@ -371,16 +387,23 @@ export default function App() {
     return { rep, calls, connected, demos, closes, won };
   }).sort((a, b) => b.closes - a.closes || b.calls - a.calls);
 
-  // ── Filtered leads ───────────────────────────────────────────────────────────────────────────
-  const filteredLeads = leads.filter(l =>
-    (filterStage === "All" || l.stage === filterStage) &&
-    (filterRep   === "All" || l.rep   === filterRep)
-  );
+  // ── Filtered leads ─────────────────────────────────────────────────────
+  const filteredLeads = leads.filter(l => {
+    const q = pipelineSearch.toLowerCase();
+    const matchSearch = !q ||
+      l.name.toLowerCase().includes(q) ||
+      (l.company || "").toLowerCase().includes(q) ||
+      (l.phone   || "").includes(q) ||
+      (l.notes   || "").toLowerCase().includes(q);
+    return (filterStage === "All" || l.stage === filterStage) &&
+           (filterRep   === "All" || l.rep   === filterRep) &&
+           matchSearch;
+  });
 
-  // ── Interested leads for follow-up tracker ────────────────────────────────────────────
+  // ── Interested leads for follow-up tracker ─────────────────────────────────────
   const interestedLeads = leads.filter(l => l.stage === "Interested");
 
-  // ── Lead CRUD ────────────────────────────────────────────────────────────────────────────────
+  // ── Lead CRUD ──────────────────────────────────────────────────────
   function openAddLead() { setLeadForm(EMPTY_LEAD); setEditLead(null); setShowAddLead(true); }
   function openEditLead(lead) {
     setLeadForm({ name: lead.name, company: lead.company || "", phone: lead.phone || "", stage: lead.stage, rep: lead.rep, notes: lead.notes || "", value: lead.value || "" });
@@ -431,7 +454,7 @@ export default function App() {
     setLeads(prev => prev.map(l => l.id === id ? { ...l, ...payload } : l));
   }
 
-  // ── Call log ────────────────────────────────────────────────────────────────────────────────
+  // ── Call log ─────────────────────────────────────────────────────
   async function saveLog() {
     if (!logForm.calls) return;
     setSaving(true);
@@ -447,7 +470,7 @@ export default function App() {
     setLogForm(EMPTY_LOG);
   }
 
-  // ── Day tracking ─────────────────────────────────────────────────────────────────────────
+  // ── Day tracking ─────────────────────────────────────────────────────
   function openDayModal(rep, dateStr, existingEntry) {
     setSelectedDay({ rep, date: dateStr });
     setDayForm({
@@ -489,6 +512,123 @@ export default function App() {
   ];
   const selStyle = { padding: "7px 12px", borderRadius: 7, border: "1px solid #2a2a2a", background: "#111", color: "#bbb", fontSize: 13 };
   const tfLabel  = TIMEFRAMES.find(t => t.value === callsTimeframe)?.label || "";
+
+  // ── Holographic Login Screen ──────────────────────────────────────────────────
+  if (!isLoggedIn) {
+    return (
+      <div style={{ position: "fixed", inset: 0, background: "#010811", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", overflow: "hidden", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
+        <style>{`
+          @keyframes scan   { 0% { top: -2% } 100% { top: 102% } }
+          @keyframes pulse  { 0%,100% { filter: drop-shadow(0 0 10px #00d4ff) drop-shadow(0 0 20px #0088ff44); opacity: .85; } 50% { filter: drop-shadow(0 0 24px #00d4ff) drop-shadow(0 0 50px #00d4ff66); opacity: 1; } }
+          @keyframes shake  { 0%,100% { transform: translateX(0) } 20%,60% { transform: translateX(-10px) } 40%,80% { transform: translateX(10px) } }
+          @keyframes blink  { 0%,100% { opacity: 1 } 50% { opacity: 0 } }
+          @keyframes gridpulse { 0%,100% { opacity: .04 } 50% { opacity: .09 } }
+          @keyframes spin   { to { transform: rotate(360deg); } }
+          .login-btn:hover  { background: #00d4ff22 !important; box-shadow: 0 0 24px #00d4ff55 !important; }
+          input.holo-input::placeholder { color: #00d4ff33; }
+          input.holo-input:focus { border-color: #00d4ffaa !important; box-shadow: 0 0 30px #00d4ff33, inset 0 0 12px #00d4ff0d !important; outline: none; }
+        `}</style>
+
+        {/* Grid background */}
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(#00d4ff 1px, transparent 1px), linear-gradient(90deg, #00d4ff 1px, transparent 1px)", backgroundSize: "44px 44px", animation: "gridpulse 4s ease-in-out infinite", pointerEvents: "none" }} />
+
+        {/* Radial vignette */}
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse at center, transparent 30%, #010811 80%)", pointerEvents: "none" }} />
+
+        {/* Scan line */}
+        <div style={{ position: "absolute", left: 0, right: 0, height: 3, background: "linear-gradient(transparent, #00d4ff55, transparent)", boxShadow: "0 0 18px #00d4ffaa", animation: "scan 3.5s linear infinite", zIndex: 2, pointerEvents: "none" }} />
+
+        {/* Corner HUD brackets */}
+        {[["top:18px","left:18px","borderTop","borderLeft"],["top:18px","right:18px","borderTop","borderRight"],["bottom:18px","left:18px","borderBottom","borderLeft"],["bottom:18px","right:18px","borderBottom","borderRight"]].map((c, i) => {
+          const pos = {}; c.slice(0,2).forEach(p => { const [k,v] = p.split(":"); pos[k] = v; });
+          const borders = {}; c.slice(2).forEach(b => { borders[b] = "2px solid #00d4ff33"; });
+          return <div key={i} style={{ position: "absolute", width: 44, height: 44, ...pos, ...borders, pointerEvents: "none", zIndex: 2 }} />;
+        })}
+
+        {/* Top status label */}
+        <div style={{ position: "absolute", top: 26, left: "50%", transform: "translateX(-50%)", fontSize: 9, color: "#00d4ff44", letterSpacing: 4, textTransform: "uppercase", whiteSpace: "nowrap", zIndex: 3 }}>
+          FIRSTLINE SYSTEMS · SECURE ACCESS PORTAL
+        </div>
+
+        {/* Main content */}
+        <div style={{ position: "relative", zIndex: 4, display: "flex", flexDirection: "column", alignItems: "center", gap: 36 }}>
+
+          {/* Firstline Logo SVG — holographic */}
+          <div style={{ animation: "pulse 2.8s ease-in-out infinite" }}>
+            <svg viewBox="0 0 100 100" width="130" height="130" fill="none" xmlns="http://www.w3.org/2000/svg">
+              {/* Outer frame */}
+              <rect x="5" y="5" width="90" height="90" stroke="#00d4ff" strokeWidth="2.5" fill="#00d4ff06" />
+              {/* Inner top-right notch */}
+              <polyline points="62,5 95,5 95,38" stroke="#00d4ff" strokeWidth="2.5" fill="none" opacity="0.4"/>
+              {/* Vertical left bar */}
+              <rect x="15" y="15" width="20" height="70" fill="#00d4ff" />
+              {/* Top horizontal bar */}
+              <rect x="35" y="15" width="50" height="16" fill="#00d4ff" />
+              {/* Middle horizontal bar */}
+              <rect x="35" y="46" width="34" height="14" fill="#00d4ff" />
+              {/* Notch corner accent */}
+              <line x1="62" y1="5" x2="95" y2="38" stroke="#00d4ff" strokeWidth="1.5" opacity="0.5"/>
+            </svg>
+          </div>
+
+          {/* Title block */}
+          <div style={{ textAlign: "center", lineHeight: 1.3 }}>
+            <div style={{ fontSize: 30, fontWeight: 800, color: "#00d4ff", letterSpacing: 8, textTransform: "uppercase", textShadow: "0 0 20px #00d4ff, 0 0 50px #0088ff66" }}>FIRSTLINE</div>
+            <div style={{ fontSize: 10, color: "#00d4ff55", letterSpacing: 6, marginTop: 6, textTransform: "uppercase" }}>INTELLIGENCE · CRM</div>
+          </div>
+
+          {/* Code input area */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, animation: loginShake ? "shake 0.6s ease" : "none" }}>
+            <div style={{ fontSize: 9, color: "#00d4ff44", letterSpacing: 5, textTransform: "uppercase" }}>ENTER ACCESS CODE</div>
+
+            <input
+              className="holo-input"
+              type="password"
+              value={loginCode}
+              onChange={e => setLoginCode(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && attemptLogin()}
+              maxLength={20}
+              autoFocus
+              placeholder="· · · · · · · · · ·"
+              style={{
+                background: "#00d4ff08",
+                border: `1px solid ${loginShake ? "#ff444488" : "#00d4ff44"}`,
+                borderRadius: 2,
+                color: "#00d4ff",
+                fontSize: 24,
+                letterSpacing: 10,
+                padding: "14px 28px",
+                width: 280,
+                textAlign: "center",
+                boxShadow: loginShake ? "0 0 24px #ff444433, inset 0 0 12px #ff44440a" : "0 0 20px #00d4ff1a, inset 0 0 10px #00d4ff08",
+                caretColor: "#00d4ff",
+                transition: "all .3s",
+              }}
+            />
+
+            {loginShake && (
+              <div style={{ color: "#ff4444", fontSize: 10, letterSpacing: 4, textTransform: "uppercase", animation: "blink 0.4s ease 4" }}>
+                ⚠ ACCESS DENIED
+              </div>
+            )}
+
+            <button
+              className="login-btn"
+              onClick={attemptLogin}
+              style={{ background: "transparent", border: "1px solid #00d4ff44", color: "#00d4ff", padding: "11px 48px", letterSpacing: 5, fontSize: 10, textTransform: "uppercase", cursor: "pointer", borderRadius: 2, transition: "all .2s", boxShadow: "none", marginTop: 4 }}
+            >
+              AUTHENTICATE
+            </button>
+          </div>
+        </div>
+
+        {/* Bottom status */}
+        <div style={{ position: "absolute", bottom: 26, left: "50%", transform: "translateX(-50%)", fontSize: 9, color: "#00d4ff2a", letterSpacing: 3, whiteSpace: "nowrap", zIndex: 3 }}>
+          AES-256 · ENCRYPTED CHANNEL · ACTIVE
+        </div>
+      </div>
+    );
+  }
 
   if (loading) return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh", background: "#0a0a0a", flexDirection: "column", gap: 12 }}>
@@ -681,6 +821,20 @@ export default function App() {
         {/* ── PIPELINE ── */}
         {tab === "pipeline" && (
           <div>
+            {/* Search bar */}
+            <div style={{ marginBottom: 10, position: "relative" }}>
+              <span style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", fontSize: 15, color: "#444", pointerEvents: "none" }}>🔍</span>
+              <input
+                type="text"
+                placeholder="Search by name, company, phone, or notes…"
+                value={pipelineSearch}
+                onChange={e => setPipelineSearch(e.target.value)}
+                style={{ width: "100%", padding: "9px 12px 9px 36px", borderRadius: 8, border: "1px solid #2a2a2a", background: "#111", color: "#e0e0e0", fontSize: 14, boxSizing: "border-box", outline: "none" }}
+              />
+              {pipelineSearch && (
+                <button onClick={() => setPipelineSearch("")} style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#555", cursor: "pointer", fontSize: 18, lineHeight: 1, padding: 0 }}>×</button>
+              )}
+            </div>
             <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap", alignItems: "center" }}>
               <select value={filterStage} onChange={e => setFilterStage(e.target.value)} style={selStyle}>
                 <option value="All">All Stages</option>
@@ -690,7 +844,7 @@ export default function App() {
                 <option value="All">All Reps</option>
                 {REPS.map(r => <option key={r}>{r}</option>)}
               </select>
-              <span style={{ fontSize: 13, color: "#333", marginLeft: 4 }}>{filteredLeads.length} leads</span>
+              <span style={{ fontSize: 13, color: "#333", marginLeft: 4 }}>{filteredLeads.length} lead{filteredLeads.length !== 1 ? "s" : ""}{pipelineSearch ? ` for "${pipelineSearch}"` : ""}</span>
             </div>
 
             {filteredLeads.length === 0 ? (
