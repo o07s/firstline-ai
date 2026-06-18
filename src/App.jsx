@@ -948,8 +948,9 @@ export default function App() {
               <span style={{ fontSize: 13, color: "#333", marginLeft: 4 }}>{filteredLeads.length} lead{filteredLeads.length !== 1 ? "s" : ""}{pipelineSearch ? ` matching "${pipelineSearch}"` : ""}</span>
             </div>
 
-            {/* Kanban board — horizontal scroll */}
-            <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 14, alignItems: "flex-start", marginLeft: -18, marginRight: -18, paddingLeft: 18, paddingRight: 18 }}>
+            {/* Kanban board — horizontal scroll with scrollbar on top */}
+            <div style={{ overflowX: "auto", transform: "rotateX(180deg)", marginLeft: -18, marginRight: -18, paddingLeft: 18, paddingRight: 18 }}>
+            <div style={{ display: "flex", gap: 10, paddingBottom: 6, paddingTop: 14, alignItems: "flex-start", transform: "rotateX(180deg)" }}>
               {STAGES.map(stage => {
                 const sc = STAGE_COLORS[stage];
                 const stageLeads = filteredLeads.filter(l => l.stage === stage);
@@ -1045,6 +1046,7 @@ export default function App() {
                 );
               })}
             </div>
+            </div>{/* end rotateX scroll wrapper */}
           </div>
         )}
 
