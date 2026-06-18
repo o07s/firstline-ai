@@ -923,9 +923,10 @@ export default function App() {
           </div>
         )}
 
-        {/* ── PIPELINE ── */}
+        {/* ── PIPELINE (Kanban) ── */}
         {tab === "pipeline" && (
           <div>
+            {/* Search + Rep filter */}
             <div style={{ marginBottom: 10, position: "relative" }}>
               <span style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", fontSize: 15, color: "#444", pointerEvents: "none" }}>🔍</span>
               <input
@@ -939,92 +940,111 @@ export default function App() {
                 <button onClick={() => setPipelineSearch("")} style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#555", cursor: "pointer", fontSize: 18, lineHeight: 1, padding: 0 }}>&times;</button>
               )}
             </div>
-            <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap", alignItems: "center" }}>
-              <select value={filterStage} onChange={e => setFilterStage(e.target.value)} style={selStyle}>
-                <option value="All">All Stages</option>
-                {STAGES.map(s => <option key={s}>{s}</option>)}
-              </select>
+            <div style={{ display: "flex", gap: 8, marginBottom: 14, alignItems: "center" }}>
               <select value={filterRep} onChange={e => setFilterRep(e.target.value)} style={selStyle}>
                 <option value="All">All Reps</option>
                 {REPS.map(r => <option key={r}>{r}</option>)}
               </select>
-              <span style={{ fontSize: 13, color: "#333", marginLeft: 4 }}>{filteredLeads.length} lead{filteredLeads.length !== 1 ? "s" : ""}{pipelineSearch ? ` for "${pipelineSearch}"` : ""}</span>
+              <span style={{ fontSize: 13, color: "#333", marginLeft: 4 }}>{filteredLeads.length} lead{filteredLeads.length !== 1 ? "s" : ""}{pipelineSearch ? ` matching "${pipelineSearch}"` : ""}</span>
             </div>
 
-            {filteredLeads.length === 0 ? (
-              <div style={{ background: "#111", border: "1px solid #1e1e1e", borderRadius: 12, padding: 40, textAlign: "center", color: "#333", fontSize: 14 }}>
-                No leads yet. Click "+ Add Lead" to get started.
-              </div>
-            ) : (
-              <div style={{ display: "grid", gap: 10 }}>
-                {filteredLeads.map(lead => {
-                  const rc = REP_COLORS[lead.rep];
-                  const baseDate = lead.interested_at || lead.created_at;
-                  const days = lead.stage === "Interested" ? daysAgo(baseDate) : null;
-                  return (
-                    <div key={lead.id} style={{ background: "#111", border: "1px solid #1e1e1e", borderLeft: `3px solid ${rc?.main || "#333"}`, borderRadius: 12, padding: "14px 18px", display: "flex", alignItems: "flex-start", gap: 14, flexWrap: "wrap" }}>
-                      <div style={{ flex: 1, minWidth: 180 }}>
-                        <div style={{ fontWeight: 600, fontSize: 15, color: "#e0e0e0", marginBottom: 2 }}>{lead.name}</div>
-                        <div style={{ fontSize: 13, color: "#777" }}>{lead.company}</div>
-                        {lead.phone && <div style={{ fontSize: 12, color: "#444", marginTop: 2 }}>{lead.phone}</div>}
-                        {lead.created_at && (
-                          <div style={{ fontSize: 11, color: "#2e2e2e", marginTop: 5, display: "flex", alignItems: "center", gap: 4 }}>
-                            <span>📅</span>
-                            <span>Added {fmtDate(lead.created_at)}</span>
-                          </div>
-                        )}
-                      </div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 5, alignItems: "flex-end", minWidth: 130 }}>
-                        <Badge stage={lead.stage} />
-                        <div style={{ fontSize: 12, color: rc?.dot || "#888" }}>{lead.rep}</div>
-                        {lead.value > 0 && <div style={{ fontSize: 13, fontWeight: 600, color: "#3dd68c" }}>${Number(lead.value).toLocaleString()}</div>}
-                      </div>
-                      {lead.notes && (
-                        <div style={{ width: "100%", fontSize: 12, color: "#777", background: "#0d0d0d", borderRadius: 6, padding: "6px 10px", marginTop: 4 }}>
-                          {lead.notes}
-                        </div>
-                      )}
-                      {lead.stage === "Interested" && (
-                        <div style={{ width: "100%", padding: "8px 10px", background: "#0a1a0a", border: "1px solid #1e3a1e", borderRadius: 8, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                          <div style={{ display: "flex", gap: 4 }}>
-                            {FOLLOWUP_DAYS.map(d => {
-                              const done = days !== null && days >= d;
-                              return (
-                                <div key={d} style={{
-                                  fontSize: 10, padding: "2px 6px", borderRadius: 10, fontWeight: 700,
-                                  background: done ? "#1a3a1a" : "#111",
-                                  border: `1px solid ${done ? "#3a7a3a" : "#2a2a2a"}`,
-                                  color: done ? "#7bc95a" : "#444",
-                                }}>
-                                  D{d}{done ? "✓" : ""}
-                                </div>
-                              );
-                            })}
-                          </div>
-                          <div style={{ fontSize: 11, color: "#444" }}>
-                            {days !== null ? (days === 0 ? "interested today" : `${days}d since interested`) : ""}
-                          </div>
-                          {lead.phone && (
-                            <button onClick={() => openWhatsApp(lead.phone, lead.name)}
-                              style={{ marginLeft: "auto", background: "#1a4a1a", border: "1px solid #2a7a2a", color: "#7bc95a", borderRadius: 6, padding: "3px 10px", fontSize: 11, cursor: "pointer", fontWeight: 600 }}>
-                              💬 WA
-                            </button>
-                          )}
-                        </div>
-                      )}
-                      <div style={{ display: "flex", gap: 6, width: "100%", marginTop: 4 }}>
-                        <select value={lead.stage} onChange={e => updateLeadStage(lead.id, e.target.value)}
-                          style={{ flex: 1, padding: "5px 8px", borderRadius: 6, border: "1px solid #2a2a2a", background: "#0d0d0d", color: "#ccc", fontSize: 12 }}>
-                          {STAGES.map(s => <option key={s}>{s}</option>)}
-                        </select>
-                        <button style={BTN.secondary} onClick={() => openEditLead(lead)}>Edit</button>
-                        <button style={BTN.danger}    onClick={() => deleteLead(lead.id)}>Remove</button>
-                      </div>
+            {/* Kanban board — horizontal scroll */}
+            <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 14, alignItems: "flex-start", marginLeft: -18, marginRight: -18, paddingLeft: 18, paddingRight: 18 }}>
+              {STAGES.map(stage => {
+                const sc = STAGE_COLORS[stage];
+                const stageLeads = filteredLeads.filter(l => l.stage === stage);
+                const totalVal = stageLeads.reduce((s, l) => s + Number(l.value || 0), 0);
+                return (
+                  <div
+                    key={stage}
+                    onDragOver={e => e.preventDefault()}
+                    onDrop={e => { e.preventDefault(); const id = e.dataTransfer.getData("leadId"); if (id) updateLeadStage(id, stage); }}
+                    style={{
+                      minWidth: 240,
+                      width: 240,
+                      flexShrink: 0,
+                      background: "#0f0f0f",
+                      border: `1px solid ${sc.border}33`,
+                      borderTop: `3px solid ${sc.border}`,
+                      borderRadius: "0 0 12px 12px",
+                      padding: "10px 10px 14px",
+                      transition: "border-color .15s",
+                    }}
+                  >
+                    {/* Column header */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                      <span style={{ fontWeight: 700, fontSize: 12, color: sc.text, textTransform: "uppercase", letterSpacing: 0.5 }}>{stage}</span>
+                      <span style={{ background: sc.bg, color: sc.text, border: `1px solid ${sc.border}55`, borderRadius: 20, padding: "1px 8px", fontSize: 11, fontWeight: 700 }}>{stageLeads.length}</span>
                     </div>
-                  );
-                })}
-              </div>
-            )}
+                    {totalVal > 0 && (
+                      <div style={{ fontSize: 11, color: "#3dd68c", marginBottom: 8, fontWeight: 600 }}>${totalVal.toLocaleString()}</div>
+                    )}
+
+                    {/* Cards */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: 7, minHeight: 50 }}>
+                      {stageLeads.map(lead => {
+                        const rc = REP_COLORS[lead.rep];
+                        const baseDate = lead.interested_at || lead.created_at;
+                        const days = lead.stage === "Interested" ? daysAgo(baseDate) : null;
+                        return (
+                          <div
+                            key={lead.id}
+                            draggable
+                            onDragStart={e => { e.dataTransfer.setData("leadId", lead.id); e.dataTransfer.effectAllowed = "move"; }}
+                            style={{
+                              background: "#181818",
+                              border: "1px solid #242424",
+                              borderLeft: `3px solid ${rc?.main || "#333"}`,
+                              borderRadius: 8,
+                              padding: "10px 11px",
+                              cursor: "grab",
+                              transition: "box-shadow .15s",
+                            }}
+                            onMouseEnter={e => e.currentTarget.style.boxShadow = "0 2px 12px #0007"}
+                            onMouseLeave={e => e.currentTarget.style.boxShadow = "none"}
+                          >
+                            <div style={{ fontWeight: 600, fontSize: 13, color: "#e0e0e0", marginBottom: 1 }}>{lead.name}</div>
+                            {lead.company && <div style={{ fontSize: 11, color: "#555", marginBottom: 5 }}>{lead.company}</div>}
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                              <span style={{ fontSize: 10, color: rc?.dot || "#888" }}>● {lead.rep}</span>
+                              {lead.value > 0 && <span style={{ fontSize: 11, fontWeight: 700, color: "#3dd68c" }}>${Number(lead.value).toLocaleString()}</span>}
+                            </div>
+                            {lead.notes && (
+                              <div style={{ fontSize: 10, color: "#444", background: "#111", borderRadius: 5, padding: "4px 7px", marginTop: 6, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" }}>
+                                {lead.notes.slice(0, 120)}{lead.notes.length > 120 ? "…" : ""}
+                              </div>
+                            )}
+                            {lead.stage === "Interested" && days !== null && (
+                              <div style={{ display: "flex", gap: 3, marginTop: 6, flexWrap: "wrap", alignItems: "center" }}>
+                                {FOLLOWUP_DAYS.map(d => {
+                                  const done = days >= d;
+                                  return (
+                                    <div key={d} style={{ fontSize: 9, padding: "1px 5px", borderRadius: 8, fontWeight: 700, background: done ? "#1a3a1a" : "#111", border: `1px solid ${done ? "#3a7a3a" : "#222"}`, color: done ? "#7bc95a" : "#333" }}>
+                                      D{d}{done ? "✓" : ""}
+                                    </div>
+                                  );
+                                })}
+                                <span style={{ fontSize: 9, color: "#333", marginLeft: 2 }}>{days}d</span>
+                              </div>
+                            )}
+                            <div style={{ display: "flex", gap: 4, marginTop: 8 }}>
+                              <button style={{ ...BTN.secondary, fontSize: 10, padding: "3px 8px" }} onClick={() => openEditLead(lead)}>Edit</button>
+                              <button style={{ ...BTN.danger, fontSize: 10, padding: "3px 8px" }} onClick={() => deleteLead(lead.id)}>✕</button>
+                              {lead.phone && lead.stage === "Interested" && (
+                                <button onClick={() => openWhatsApp(lead.phone, lead.name)}
+                                  style={{ marginLeft: "auto", background: "#1a4a1a", border: "1px solid #2a7a2a", color: "#7bc95a", borderRadius: 5, padding: "3px 8px", fontSize: 10, cursor: "pointer", fontWeight: 600 }}>
+                                  💬
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
 
