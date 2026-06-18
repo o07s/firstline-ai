@@ -31,12 +31,91 @@ const TIMEFRAMES = [
   { value: "all",   label: "All Time"  },
 ];
 
-const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-const DOW_LABELS  = ["Su","Mo","Tu","We","Th","Fr","Sa"];
+const MONTH_NAMES = {
+  en: ["January","February","March","April","May","June","July","August","September","October","November","December"],
+  it: ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"],
+};
+const DOW_LABELS = {
+  en: ["Su","Mo","Tu","We","Th","Fr","Sa"],
+  it: ["Do","Lu","Ma","Me","Gi","Ve","Sa"],
+};
 
-// ── Change B: i18n dictionary (new labels) ────────────────────
+// ── i18n dictionary ───────────────────────────────────────────
 const T = {
   en: {
+    // Tabs
+    tab_metrics: "📊 Metrics", tab_pipeline: "🏗️ Pipeline",
+    tab_leaderboard: "🏆 Leaderboard", tab_tracking: "📅 Tracking",
+    // Timeframes
+    tf_week: "This Week", tf_7d: "7 Days", tf_month: "30 Days", tf_all: "All Time",
+    tf_center_week: "this week", tf_center_7d: "7 days", tf_center_month: "30 days", tf_center_all: "all time",
+    // Header
+    btn_log_calls: "+ Log Calls", btn_add_lead: "+ Add Lead",
+    subtitle_leads: "leads", subtitle_calls: "calls",
+    // Loading / Error
+    loading_msg: "Connecting to database…", conn_error: "Connection Error", retry: "Retry",
+    // Stat cards
+    stat_total_calls: "Total Calls", stat_connect_rate: "Connect Rate",
+    stat_demos_set: "Demos Set", stat_close_rate: "Close Rate",
+    stat_pipeline_val: "Pipeline Value", stat_won_rev: "Won Revenue",
+    stat_active_leads: "Active Leads", stat_closed_won: "Closed Won",
+    sub_connected: "connected", sub_scheduled: "scheduled", sub_closes: "closes",
+    sub_open_deals: "open deals", sub_closed_won: "closed won",
+    sub_in_progress: "in progress", sub_deals: "deals",
+    // WhatsApp section
+    wa_followups: "💬 WhatsApp Follow-ups",
+    wa_desc: "Interested leads — D1 / D3 / D7 / D10 checkpoints · tap WhatsApp to send a quick message",
+    wa_no_phone: "No phone on file", wa_add_phone: "Add phone to use",
+    // Metrics sections
+    section_pipeline: "Pipeline by Stage", section_recent: "Recent Call Sessions",
+    no_sessions: "No sessions yet — click \"+ Log Calls\" to start.",
+    // Table headers
+    th_date: "Date", th_rep: "Rep", th_calls: "Calls",
+    th_connected: "Connected", th_demos: "Demos", th_closes: "Closes",
+    // Pipeline tab
+    search_ph: "Search by name, company, phone, or notes…",
+    filter_all: "All Reps",
+    leads_word: "lead",
+    no_leads: "No leads yet. Click '+ Add Lead' to get started.",
+    card_edit: "Edit",
+    // Leaderboard
+    lb_title: "🏆 Team Leaderboard", lb_ranked: "Ranked by closes",
+    lb_most_calls: "📞 Most Calls", lb_top_closer: "🤝 Top Closer", lb_top_earner: "💰 Top Earner",
+    lb_calls: "Calls", lb_connected: "Connected", lb_demos: "Demos", lb_closes: "Closes", lb_won: "Won",
+    lb_connect: "Connect",
+    // Tracking
+    track_title: "📅 Daily Tracking",
+    track_desc_1: "Click any day to write your to-do's and log what you got done.",
+    track_desc_red: "red", track_desc_green: "green",
+    // Calendar legend
+    cal_done: "Done", cal_missed: "Missed", cal_today: "Today", cal_planned: "Planned",
+    // Modals — shared
+    cancel: "Cancel", saving: "Saving…",
+    // Add/Edit Lead modal
+    modal_add_lead: "Add New Lead", modal_edit_lead: "Edit Lead",
+    field_contact: "Contact Name *", field_company: "Company",
+    field_phone: "Phone", field_stage: "Stage", field_rep: "Assigned Rep",
+    field_value: "Deal Value ($)", field_notes: "Notes",
+    notes_ph: "Call notes, next steps…",
+    restore: "↩ Restore",
+    save_changes: "Save Changes", add_lead_btn: "Add Lead",
+    // Log calls modal
+    modal_log: "Log Call Session",
+    log_desc: "Record today's activity for any team member.",
+    log_rep: "Rep", log_date: "Date",
+    log_calls: "Total Calls *", log_connected: "Connected",
+    log_demos: "Demos Set", log_closes: "Closes",
+    log_btn: "Log Session",
+    // Day modal
+    day_done_banner: "✓ This day is marked complete",
+    day_todos_label: "📝 To-do's for the day",
+    day_todos_ph: "What do you need to get done today?\n\n- \n- \n- ",
+    day_done_label: "✅ What I got done",
+    day_done_ph: "What did you actually accomplish today?\n\n- \n- \n- ",
+    day_mark: "Mark this day as complete",
+    day_mark_done: "✓ Marked as complete — day will glow green",
+    day_save: "Save",
+    // Assets
     assets: "Assets", asset_owner: "Owner", add_asset: "+ Add Asset",
     asset_name_field: "Asset Name", asset_type_field: "Type",
     asset_link_field: "Link", asset_notes_field: "Notes",
@@ -44,6 +123,79 @@ const T = {
     rewrite_btn: "Rewrite", rewriting: "Rewriting…",
   },
   it: {
+    // Tabs
+    tab_metrics: "📊 Metriche", tab_pipeline: "🏗️ Pipeline",
+    tab_leaderboard: "🏆 Classifica", tab_tracking: "📅 Tracking",
+    // Timeframes
+    tf_week: "Questa Sett.", tf_7d: "7 Giorni", tf_month: "30 Giorni", tf_all: "Sempre",
+    tf_center_week: "questa sett.", tf_center_7d: "7 giorni", tf_center_month: "30 giorni", tf_center_all: "sempre",
+    // Header
+    btn_log_calls: "+ Registra", btn_add_lead: "+ Aggiungi Lead",
+    subtitle_leads: "lead", subtitle_calls: "chiamate",
+    // Loading / Error
+    loading_msg: "Connessione al database…", conn_error: "Errore di Connessione", retry: "Riprova",
+    // Stat cards
+    stat_total_calls: "Chiamate Totali", stat_connect_rate: "Tasso Risposta",
+    stat_demos_set: "Demo Fissate", stat_close_rate: "Tasso Chiusura",
+    stat_pipeline_val: "Valore Pipeline", stat_won_rev: "Ricavi Vinti",
+    stat_active_leads: "Lead Attivi", stat_closed_won: "Chiusi Vinti",
+    sub_connected: "risposti", sub_scheduled: "pianificate", sub_closes: "chiusure",
+    sub_open_deals: "trattative aperte", sub_closed_won: "chiusi vinti",
+    sub_in_progress: "in corso", sub_deals: "trattative",
+    // WhatsApp section
+    wa_followups: "💬 Follow-up WhatsApp",
+    wa_desc: "Lead interessati — checkpoint D1/D3/D7/D10 · tocca WhatsApp per inviare un messaggio",
+    wa_no_phone: "Nessun telefono", wa_add_phone: "Aggiungi telefono",
+    // Metrics sections
+    section_pipeline: "Pipeline per Fase", section_recent: "Sessioni Chiamate Recenti",
+    no_sessions: "Nessuna sessione — clicca \"+ Registra\" per iniziare.",
+    // Table headers
+    th_date: "Data", th_rep: "Rep", th_calls: "Chiamate",
+    th_connected: "Risposti", th_demos: "Demo", th_closes: "Chiusure",
+    // Pipeline tab
+    search_ph: "Cerca per nome, azienda, telefono o note…",
+    filter_all: "Tutti",
+    leads_word: "lead",
+    no_leads: "Nessun lead. Clicca '+ Aggiungi Lead' per iniziare.",
+    card_edit: "Modifica",
+    // Leaderboard
+    lb_title: "🏆 Classifica Team", lb_ranked: "Classificati per chiusure",
+    lb_most_calls: "📞 Più Chiamate", lb_top_closer: "🤝 Top Closer", lb_top_earner: "💰 Top Guadagno",
+    lb_calls: "Chiamate", lb_connected: "Risposti", lb_demos: "Demo", lb_closes: "Chiusure", lb_won: "Vinto",
+    lb_connect: "Risposta",
+    // Tracking
+    track_title: "📅 Tracking Giornaliero",
+    track_desc_1: "Clicca su un giorno per scrivere i tuoi to-do e registrare cosa hai fatto.",
+    track_desc_red: "rosso", track_desc_green: "verde",
+    // Calendar legend
+    cal_done: "Fatto", cal_missed: "Mancato", cal_today: "Oggi", cal_planned: "Pianificato",
+    // Modals — shared
+    cancel: "Annulla", saving: "Salvataggio…",
+    // Add/Edit Lead modal
+    modal_add_lead: "Aggiungi Lead", modal_edit_lead: "Modifica Lead",
+    field_contact: "Nome Contatto *", field_company: "Azienda",
+    field_phone: "Telefono", field_stage: "Fase", field_rep: "Rep Assegnato",
+    field_value: "Valore Trattativa ($)", field_notes: "Note",
+    notes_ph: "Note chiamata, prossimi passi…",
+    restore: "↩ Ripristina",
+    save_changes: "Salva Modifiche", add_lead_btn: "Aggiungi Lead",
+    // Log calls modal
+    modal_log: "Registra Sessione",
+    log_desc: "Registra l'attività odierna per un membro del team.",
+    log_rep: "Rep", log_date: "Data",
+    log_calls: "Chiamate Totali *", log_connected: "Risposti",
+    log_demos: "Demo Fissate", log_closes: "Chiusure",
+    log_btn: "Registra",
+    // Day modal
+    day_done_banner: "✓ Questo giorno è segnato come completato",
+    day_todos_label: "📝 Cose da fare oggi",
+    day_todos_ph: "Cosa devi fare oggi?\n\n- \n- \n- ",
+    day_done_label: "✅ Cosa ho fatto",
+    day_done_ph: "Cosa hai fatto oggi?\n\n- \n- \n- ",
+    day_mark: "Segna il giorno come completato",
+    day_mark_done: "✓ Segnato come completato — il giorno sarà verde",
+    day_save: "Salva",
+    // Assets
     assets: "Asset", asset_owner: "Proprietario", add_asset: "+ Aggiungi Asset",
     asset_name_field: "Nome Asset", asset_type_field: "Tipo",
     asset_link_field: "Link", asset_notes_field: "Note",
@@ -142,13 +294,15 @@ function openWhatsApp(phone, name) {
 }
 
 // ── Rep Calendar ─────────────────────────────────────────────
-function RepCalendar({ rep, trackingData, month, onDayClick, onPrevMonth, onNextMonth }) {
+function RepCalendar({ rep, trackingData, month, onDayClick, onPrevMonth, onNextMonth, tx, lang }) {
   const year = month.getFullYear();
   const mon  = month.getMonth();
   const todayStr    = new Date().toISOString().slice(0, 10);
   const daysInMonth = new Date(year, mon + 1, 0).getDate();
   const firstDow    = new Date(year, mon, 1).getDay();
   const rc = REP_COLORS[rep];
+  const monthNames = MONTH_NAMES[lang] || MONTH_NAMES.en;
+  const dowLabels  = DOW_LABELS[lang]  || DOW_LABELS.en;
 
   const cells = [];
   for (let i = 0; i < firstDow; i++) cells.push(null);
@@ -160,13 +314,13 @@ function RepCalendar({ rep, trackingData, month, onDayClick, onPrevMonth, onNext
         <button onClick={onPrevMonth} style={{ background: "none", border: "none", color: "#555", cursor: "pointer", fontSize: 22, lineHeight: 1, padding: "0 6px" }}>&#8249;</button>
         <div style={{ textAlign: "center" }}>
           <div style={{ fontWeight: 700, fontSize: 15, color: rc.dot }}>{rep}</div>
-          <div style={{ fontSize: 11, color: "#555", marginTop: 2 }}>{MONTH_NAMES[mon]} {year}</div>
+          <div style={{ fontSize: 11, color: "#555", marginTop: 2 }}>{monthNames[mon]} {year}</div>
         </div>
         <button onClick={onNextMonth} style={{ background: "none", border: "none", color: "#555", cursor: "pointer", fontSize: 22, lineHeight: 1, padding: "0 6px" }}>&#8250;</button>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 2, marginBottom: 4 }}>
-        {DOW_LABELS.map(d => (
+        {dowLabels.map(d => (
           <div key={d} style={{ fontSize: 9, color: "#333", textAlign: "center", fontWeight: 600, padding: "2px 0", letterSpacing: 0.5 }}>{d}</div>
         ))}
       </div>
@@ -212,10 +366,10 @@ function RepCalendar({ rep, trackingData, month, onDayClick, onPrevMonth, onNext
 
       <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "center", flexWrap: "wrap" }}>
         {[
-          { color: "#3dd68c", label: "Done" },
-          { color: "#ff6b6b", label: "Missed" },
-          { color: rc.dot,    label: "Today" },
-          { color: "#777",    label: "Planned" },
+          { color: "#3dd68c", label: tx ? tx.cal_done    : "Done"    },
+          { color: "#ff6b6b", label: tx ? tx.cal_missed  : "Missed"  },
+          { color: rc.dot,    label: tx ? tx.cal_today   : "Today"   },
+          { color: "#777",    label: tx ? tx.cal_planned : "Planned" },
         ].map(({ color, label }) => (
           <div key={label} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 10, color: "#444" }}>
             <div style={{ width: 7, height: 7, borderRadius: "50%", background: color }} />
@@ -228,7 +382,7 @@ function RepCalendar({ rep, trackingData, month, onDayClick, onPrevMonth, onNext
 }
 
 // ── Timeframe Toggle ─────────────────────────────────────────────
-function TimeframeToggle({ value, onChange }) {
+function TimeframeToggle({ value, onChange, tx }) {
   return (
     <div style={{ display: "flex", gap: 3, background: "#0d0d0d", borderRadius: 9, padding: 3, border: "1px solid #1a1a1a", width: "fit-content", marginBottom: 16 }}>
       {TIMEFRAMES.map(tf => (
@@ -243,7 +397,7 @@ function TimeframeToggle({ value, onChange }) {
           fontWeight: value === tf.value ? 600 : 400,
           transition: "all .15s",
         }}>
-          {tf.label}
+          {tx ? tx["tf_" + tf.value] : tf.label}
         </button>
       ))}
     </div>
@@ -251,7 +405,7 @@ function TimeframeToggle({ value, onChange }) {
 }
 
 // ── Donut Chart ──────────────────────────────────────────────
-function DonutChart({ callLogs, timeframe }) {
+function DonutChart({ callLogs, timeframe, tx }) {
   const size = 180, cx = 90, cy = 90, R = 72, r = 48;
 
   const repCalls = REPS.map(rep => ({
@@ -260,7 +414,9 @@ function DonutChart({ callLogs, timeframe }) {
   }));
   const total = repCalls.reduce((s, rc) => s + rc.calls, 0);
 
-  const centerLabel = { week: "this week", "7d": "7 days", month: "30 days", all: "all time" }[timeframe] || "this week";
+  const centerLabel = tx
+    ? (tx["tf_center_" + timeframe] || tx.tf_center_week)
+    : ({ week: "this week", "7d": "7 days", month: "30 days", all: "all time" }[timeframe] || "this week");
 
   function describeArc(startPct, pct) {
     if (pct <= 0) return null;
@@ -637,14 +793,14 @@ export default function App() {
   const tx = T[lang];
 
   const TABS = [
-    { id: "metrics",     label: "📊 Metrics"     },
-    { id: "pipeline",    label: "🏗️ Pipeline"    },
-    { id: "leaderboard", label: "🏆 Leaderboard" },
-    { id: "tracking",    label: "📅 Tracking"    },
-    { id: "assets",      label: "🗂 " + tx.assets },
+    { id: "metrics",     label: tx.tab_metrics     },
+    { id: "pipeline",    label: tx.tab_pipeline     },
+    { id: "leaderboard", label: tx.tab_leaderboard  },
+    { id: "tracking",    label: tx.tab_tracking     },
+    { id: "assets",      label: "🗂 " + tx.assets   },
   ];
   const selStyle = { padding: "7px 12px", borderRadius: 7, border: "1px solid #2a2a2a", background: "#111", color: "#bbb", fontSize: 13 };
-  const tfLabel  = TIMEFRAMES.find(t => t.value === callsTimeframe)?.label || "";
+  const tfLabel  = tx["tf_" + callsTimeframe] || "";
 
   // ── Holographic Login Screen ──────────────────────────────────
   if (!isLoggedIn) {
@@ -744,15 +900,15 @@ export default function App() {
   if (loading) return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh", background: "#0a0a0a", flexDirection: "column", gap: 12 }}>
       <div style={{ width: 36, height: 36, border: "3px solid #1e1e1e", borderTop: "3px solid #378ADD", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
-      <div style={{ color: "#444", fontSize: 14 }}>Connecting to database…</div>
+      <div style={{ color: "#444", fontSize: 14 }}>{(T[lang] || T.en).loading_msg}</div>
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
   if (error) return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh", background: "#0a0a0a", flexDirection: "column", gap: 12, padding: 24 }}>
-      <div style={{ color: "#ff6b6b", fontSize: 16, fontWeight: 600 }}>Connection Error</div>
+      <div style={{ color: "#ff6b6b", fontSize: 16, fontWeight: 600 }}>{(T[lang] || T.en).conn_error}</div>
       <div style={{ color: "#555", fontSize: 13, textAlign: "center", maxWidth: 400 }}>{error}</div>
-      <button style={BTN.primary} onClick={loadData}>Retry</button>
+      <button style={BTN.primary} onClick={loadData}>{(T[lang] || T.en).retry}</button>
     </div>
   );
 
@@ -762,7 +918,7 @@ export default function App() {
       <div style={{ background: "#0d0d0d", borderBottom: "1px solid #1a1a1a", padding: "16px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
         <div>
           <div style={{ fontWeight: 700, fontSize: 20, color: "#e8e8e8", letterSpacing: -0.5 }}>📞 Firstline A.I.</div>
-          <div style={{ fontSize: 12, color: "#3a3a3a", marginTop: 2 }}>{leads.length} leads · {totalCalls} calls ({tfLabel.toLowerCase()})</div>
+          <div style={{ fontSize: 12, color: "#3a3a3a", marginTop: 2 }}>{leads.length} {tx.subtitle_leads} · {totalCalls} {tx.subtitle_calls} ({tfLabel.toLowerCase()})</div>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <button
@@ -771,8 +927,8 @@ export default function App() {
           >
             {lang === "it" ? "EN" : "IT"}
           </button>
-          <button style={BTN.secondary} onClick={() => setShowLogCall(true)}>+ Log Calls</button>
-          <button style={BTN.primary}   onClick={openAddLead}>+ Add Lead</button>
+          <button style={BTN.secondary} onClick={() => setShowLogCall(true)}>{tx.btn_log_calls}</button>
+          <button style={BTN.primary}   onClick={openAddLead}>{tx.btn_add_lead}</button>
         </div>
       </div>
 
@@ -790,32 +946,32 @@ export default function App() {
         {/* ── METRICS ── */}
         {tab === "metrics" && (
           <div>
-            <TimeframeToggle value={callsTimeframe} onChange={setCallsTimeframe} />
+            <TimeframeToggle value={callsTimeframe} onChange={setCallsTimeframe} tx={tx} />
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 16 }}>
-              <StatCard label="Total Calls"  value={totalCalls.toLocaleString()} sub={tfLabel.toLowerCase()} />
-              <StatCard label="Connect Rate" value={connectRate + "%"} sub={`${totalConnected} connected`} accent="#60aaff" />
-              <StatCard label="Demos Set"    value={totalDemos} sub="scheduled" accent="#7bc95a" />
-              <StatCard label="Close Rate"   value={closeRate + "%"} sub={`${totalCloses} closes`} accent="#3dd68c" />
+              <StatCard label={tx.stat_total_calls}  value={totalCalls.toLocaleString()} sub={tfLabel.toLowerCase()} />
+              <StatCard label={tx.stat_connect_rate} value={connectRate + "%"} sub={`${totalConnected} ${tx.sub_connected}`} accent="#60aaff" />
+              <StatCard label={tx.stat_demos_set}    value={totalDemos} sub={tx.sub_scheduled} accent="#7bc95a" />
+              <StatCard label={tx.stat_close_rate}   value={closeRate + "%"} sub={`${totalCloses} ${tx.sub_closes}`} accent="#3dd68c" />
             </div>
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 20 }}>
-              <StatCard label="Pipeline Value" value={"$" + pipelineValue.toLocaleString()} sub="open deals"  accent="#c97fff" />
-              <StatCard label="Won Revenue"    value={"$" + wonValue.toLocaleString()}       sub="closed won"  accent="#3dd68c" />
-              <StatCard label="Active Leads"   value={leads.filter(l => !["Closed Won", "Closed Lost"].includes(l.stage)).length} sub="in progress" />
-              <StatCard label="Closed Won"     value={leads.filter(l => l.stage === "Closed Won").length} sub="deals" accent="#3dd68c" />
+              <StatCard label={tx.stat_pipeline_val} value={"$" + pipelineValue.toLocaleString()} sub={tx.sub_open_deals}  accent="#c97fff" />
+              <StatCard label={tx.stat_won_rev}      value={"$" + wonValue.toLocaleString()}       sub={tx.sub_closed_won}  accent="#3dd68c" />
+              <StatCard label={tx.stat_active_leads} value={leads.filter(l => !["Closed Won", "Closed Lost"].includes(l.stage)).length} sub={tx.sub_in_progress} />
+              <StatCard label={tx.stat_closed_won}   value={leads.filter(l => l.stage === "Closed Won").length} sub={tx.sub_deals} accent="#3dd68c" />
             </div>
 
             <div style={{ marginBottom: 20 }}>
-              <DonutChart callLogs={filteredCallLogs} timeframe={callsTimeframe} />
+              <DonutChart callLogs={filteredCallLogs} timeframe={callsTimeframe} tx={tx} />
             </div>
 
             {interestedLeads.length > 0 && (
               <div style={{ background: "#111", border: "1px solid #1e3a1e", borderRadius: 12, padding: "18px 20px", marginBottom: 20 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                  <div style={{ fontWeight: 600, fontSize: 15, color: "#d0d0d0" }}>💬 WhatsApp Follow-ups</div>
+                  <div style={{ fontWeight: 600, fontSize: 15, color: "#d0d0d0" }}>{tx.wa_followups}</div>
                   <div style={{ background: "#639922", color: "#fff", borderRadius: 20, padding: "1px 8px", fontSize: 11, fontWeight: 700 }}>{interestedLeads.length}</div>
                 </div>
                 <div style={{ fontSize: 12, color: "#555", marginBottom: 14 }}>
-                  Interested leads — D1 / D3 / D7 / D10 checkpoints · tap WhatsApp to send a quick message
+                  {tx.wa_desc}
                 </div>
                 <div style={{ display: "grid", gap: 8 }}>
                   {interestedLeads.map(lead => {
@@ -828,7 +984,7 @@ export default function App() {
                         <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                           <div style={{ flex: 1, minWidth: 140 }}>
                             <div style={{ fontWeight: 600, fontSize: 14, color: "#e0e0e0" }}>{lead.name}</div>
-                            <div style={{ fontSize: 12, color: "#555", marginTop: 1 }}>{lead.phone || "No phone on file"}</div>
+                            <div style={{ fontSize: 12, color: "#555", marginTop: 1 }}>{lead.phone || tx.wa_no_phone}</div>
                           </div>
                           <div style={{ fontSize: 12, color: rc?.dot || "#888" }}>{lead.rep}</div>
                           <div style={{ display: "flex", gap: 4 }}>
@@ -847,7 +1003,7 @@ export default function App() {
                             })}
                           </div>
                           <div style={{ fontSize: 11, color: "#555", minWidth: 64, textAlign: "right" }}>
-                            {days === 0 ? "today" : `${days}d ago`}
+                            {days === 0 ? tx.cal_today.toLowerCase() : `${days}d ago`}
                             {nextFollowup && (
                               <div style={{ color: "#ff9a55", fontSize: 10, marginTop: 1 }}>
                                 D{nextFollowup} in {nextFollowup - days}d
@@ -860,7 +1016,7 @@ export default function App() {
                               💬 WhatsApp
                             </button>
                           ) : (
-                            <span style={{ fontSize: 11, color: "#333" }}>Add phone to use</span>
+                            <span style={{ fontSize: 11, color: "#333" }}>{tx.wa_add_phone}</span>
                           )}
                         </div>
                       </div>
@@ -871,7 +1027,7 @@ export default function App() {
             )}
 
             <div style={{ background: "#111", border: "1px solid #1e1e1e", borderRadius: 12, padding: "18px 20px", marginBottom: 20 }}>
-              <div style={{ fontWeight: 600, fontSize: 15, color: "#d0d0d0", marginBottom: 14 }}>Pipeline by Stage</div>
+              <div style={{ fontWeight: 600, fontSize: 15, color: "#d0d0d0", marginBottom: 14 }}>{tx.section_pipeline}</div>
               {STAGES.map(stage => {
                 const count = leads.filter(l => l.stage === stage).length;
                 const pct   = leads.length > 0 ? (count / leads.length) * 100 : 0;
@@ -880,7 +1036,7 @@ export default function App() {
                   <div key={stage} style={{ marginBottom: 10 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 4 }}>
                       <span style={{ color: "#999" }}>{stage}</span>
-                      <span style={{ color: "#444" }}>{count} lead{count !== 1 ? "s" : ""}</span>
+                      <span style={{ color: "#444" }}>{count} {tx.leads_word}{count !== 1 && lang === "en" ? "s" : ""}</span>
                     </div>
                     <div style={{ background: "#1a1a1a", borderRadius: 4, height: 8, overflow: "hidden" }}>
                       <div style={{ width: `${pct}%`, height: "100%", background: c.border, borderRadius: 4, transition: "width .4s" }} />
@@ -891,15 +1047,15 @@ export default function App() {
             </div>
 
             <div style={{ background: "#111", border: "1px solid #1e1e1e", borderRadius: 12, padding: "18px 20px" }}>
-              <div style={{ fontWeight: 600, fontSize: 15, color: "#d0d0d0", marginBottom: 14 }}>Recent Call Sessions</div>
+              <div style={{ fontWeight: 600, fontSize: 15, color: "#d0d0d0", marginBottom: 14 }}>{tx.section_recent}</div>
               {callLogs.length === 0 ? (
-                <div style={{ color: "#333", fontSize: 14, padding: "20px 0", textAlign: "center" }}>No sessions yet — click "+ Log Calls" to start.</div>
+                <div style={{ color: "#333", fontSize: 14, padding: "20px 0", textAlign: "center" }}>{tx.no_sessions}</div>
               ) : (
                 <div style={{ overflowX: "auto" }}>
                   <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                     <thead>
                       <tr style={{ borderBottom: "1px solid #1e1e1e" }}>
-                        {["Date", "Rep", "Calls", "Connected", "Demos", "Closes"].map(h => (
+                        {[tx.th_date, tx.th_rep, tx.th_calls, tx.th_connected, tx.th_demos, tx.th_closes].map(h => (
                           <th key={h} style={{ padding: "6px 12px", textAlign: "left", color: "#444", fontWeight: 500 }}>{h}</th>
                         ))}
                       </tr>
@@ -931,7 +1087,7 @@ export default function App() {
               <span style={{ position: "absolute", left: 11, top: "50%", transform: "translateY(-50%)", fontSize: 15, color: "#444", pointerEvents: "none" }}>🔍</span>
               <input
                 type="text"
-                placeholder="Search by name, company, phone, or notes…"
+                placeholder={tx.search_ph}
                 value={pipelineSearch}
                 onChange={e => setPipelineSearch(e.target.value)}
                 style={{ width: "100%", padding: "9px 12px 9px 36px", borderRadius: 8, border: "1px solid #2a2a2a", background: "#111", color: "#e0e0e0", fontSize: 14, boxSizing: "border-box", outline: "none" }}
@@ -942,10 +1098,10 @@ export default function App() {
             </div>
             <div style={{ display: "flex", gap: 8, marginBottom: 14, alignItems: "center" }}>
               <select value={filterRep} onChange={e => setFilterRep(e.target.value)} style={selStyle}>
-                <option value="All">All Reps</option>
+                <option value="All">{tx.filter_all}</option>
                 {REPS.map(r => <option key={r}>{r}</option>)}
               </select>
-              <span style={{ fontSize: 13, color: "#333", marginLeft: 4 }}>{filteredLeads.length} lead{filteredLeads.length !== 1 ? "s" : ""}{pipelineSearch ? ` matching "${pipelineSearch}"` : ""}</span>
+              <span style={{ fontSize: 13, color: "#333", marginLeft: 4 }}>{filteredLeads.length} {tx.leads_word}{filteredLeads.length !== 1 && lang === "en" ? "s" : ""}{pipelineSearch ? ` matching "${pipelineSearch}"` : ""}</span>
             </div>
 
             {/* Kanban board — horizontal scroll with scrollbar on top */}
@@ -1029,7 +1185,7 @@ export default function App() {
                               </div>
                             )}
                             <div style={{ display: "flex", gap: 4, marginTop: 8 }}>
-                              <button style={{ ...BTN.secondary, fontSize: 10, padding: "3px 8px" }} onClick={() => openEditLead(lead)}>Edit</button>
+                              <button style={{ ...BTN.secondary, fontSize: 10, padding: "3px 8px" }} onClick={() => openEditLead(lead)}>{tx.card_edit}</button>
                               <button style={{ ...BTN.danger, fontSize: 10, padding: "3px 8px" }} onClick={() => deleteLead(lead.id)}>✕</button>
                               {lead.phone && lead.stage === "Interested" && (
                                 <button onClick={() => openWhatsApp(lead.phone, lead.name)}
@@ -1053,14 +1209,14 @@ export default function App() {
         {/* ── LEADERBOARD ── */}
         {tab === "leaderboard" && (
           <div>
-            <TimeframeToggle value={callsTimeframe} onChange={setCallsTimeframe} />
+            <TimeframeToggle value={callsTimeframe} onChange={setCallsTimeframe} tx={tx} />
             <div style={{ marginBottom: 20 }}>
-              <DonutChart callLogs={filteredCallLogs} timeframe={callsTimeframe} />
+              <DonutChart callLogs={filteredCallLogs} timeframe={callsTimeframe} tx={tx} />
             </div>
             <div style={{ background: "#111", border: "1px solid #1e1e1e", borderRadius: 14, overflow: "hidden", marginBottom: 16 }}>
               <div style={{ padding: "16px 20px", borderBottom: "1px solid #1e1e1e", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <div style={{ fontWeight: 700, fontSize: 16, color: "#e0e0e0" }}>🏆 Team Leaderboard</div>
-                <div style={{ fontSize: 12, color: "#333" }}>Ranked by closes · {tfLabel}</div>
+                <div style={{ fontWeight: 700, fontSize: 16, color: "#e0e0e0" }}>{tx.lb_title}</div>
+                <div style={{ fontSize: 12, color: "#333" }}>{tx.lb_ranked} · {tfLabel}</div>
               </div>
               {repStats.map((r, i) => {
                 const medals = ["🥇", "🥈", "🥉"];
@@ -1071,11 +1227,11 @@ export default function App() {
                     <div style={{ fontWeight: 700, fontSize: 17, minWidth: 100, color: rc?.dot || "#ccc" }}>{r.rep}</div>
                     <div style={{ display: "flex", gap: 24, flex: 1, flexWrap: "wrap" }}>
                       {[
-                        { val: r.calls,                      label: "Calls",     color: "#888" },
-                        { val: r.connected,                  label: "Connected", color: "#60aaff" },
-                        { val: r.demos,                      label: "Demos",     color: "#7bc95a" },
-                        { val: r.closes,                     label: "Closes",    color: "#3dd68c" },
-                        { val: `$${r.won.toLocaleString()}`, label: "Won",       color: "#c97fff" },
+                        { val: r.calls,                      label: tx.lb_calls,     color: "#888" },
+                        { val: r.connected,                  label: tx.lb_connected, color: "#60aaff" },
+                        { val: r.demos,                      label: tx.lb_demos,     color: "#7bc95a" },
+                        { val: r.closes,                     label: tx.lb_closes,    color: "#3dd68c" },
+                        { val: `$${r.won.toLocaleString()}`, label: tx.lb_won,       color: "#c97fff" },
                       ].map(({ val, label, color }) => (
                         <div key={label} style={{ textAlign: "center" }}>
                           <div style={{ fontSize: 20, fontWeight: 700, color }}>{val}</div>
@@ -1086,7 +1242,7 @@ export default function App() {
                     {r.calls > 0 && (
                       <div style={{ textAlign: "right", minWidth: 60 }}>
                         <div style={{ fontSize: 14, fontWeight: 700, color: "#7bc95a" }}>{Math.round((r.connected / r.calls) * 100)}%</div>
-                        <div style={{ fontSize: 11, color: "#3a3a3a" }}>Connect</div>
+                        <div style={{ fontSize: 11, color: "#3a3a3a" }}>{tx.lb_connect}</div>
                       </div>
                     )}
                   </div>
@@ -1099,9 +1255,9 @@ export default function App() {
                 const topCloser = [...repStats].sort((a, b) => b.closes - a.closes)[0];
                 const topEarner = [...repStats].sort((a, b) => b.won    - a.won)[0];
                 return [
-                  { label: "📞 Most Calls", val: topCaller?.calls  > 0 ? `${topCaller.rep} (${topCaller.calls})`                  : "—", color: REP_COLORS[topCaller?.rep]?.dot },
-                  { label: "🤝 Top Closer", val: topCloser?.closes > 0 ? `${topCloser.rep} (${topCloser.closes})`                 : "—", color: REP_COLORS[topCloser?.rep]?.dot },
-                  { label: "💰 Top Earner", val: topEarner?.won    > 0 ? `${topEarner.rep} ($${topEarner.won.toLocaleString()})` : "—", color: REP_COLORS[topEarner?.rep]?.dot },
+                  { label: tx.lb_most_calls, val: topCaller?.calls  > 0 ? `${topCaller.rep} (${topCaller.calls})`                  : "—", color: REP_COLORS[topCaller?.rep]?.dot },
+                  { label: tx.lb_top_closer, val: topCloser?.closes > 0 ? `${topCloser.rep} (${topCloser.closes})`                 : "—", color: REP_COLORS[topCloser?.rep]?.dot },
+                  { label: tx.lb_top_earner, val: topEarner?.won    > 0 ? `${topEarner.rep} ($${topEarner.won.toLocaleString()})` : "—", color: REP_COLORS[topEarner?.rep]?.dot },
                 ].map(s => (
                   <div key={s.label} style={{ flex: 1, minWidth: 140, background: "#111", border: "1px solid #1e1e1e", borderRadius: 10, padding: "12px 16px" }}>
                     <div style={{ fontSize: 12, color: "#444", marginBottom: 4 }}>{s.label}</div>
@@ -1117,11 +1273,11 @@ export default function App() {
         {tab === "tracking" && (
           <div>
             <div style={{ marginBottom: 20 }}>
-              <div style={{ fontWeight: 700, fontSize: 17, color: "#d0d0d0", marginBottom: 6 }}>📅 Daily Tracking</div>
+              <div style={{ fontWeight: 700, fontSize: 17, color: "#d0d0d0", marginBottom: 6 }}>{tx.track_title}</div>
               <div style={{ fontSize: 13, color: "#444" }}>
-                Click any day to write your to-do&apos;s and log what you got done.
-                Days auto-turn <span style={{ color: "#ff6b6b" }}>red</span> if uncompleted and past,
-                <span style={{ color: "#3dd68c" }}> green</span> when you mark them done.
+                {tx.track_desc_1}
+                {" "}<span style={{ color: "#ff6b6b" }}>{tx.track_desc_red}</span>{lang === "en" ? " if uncompleted and past," : " se non completato e passato,"}
+                <span style={{ color: "#3dd68c" }}> {tx.track_desc_green}</span>{lang === "en" ? " when you mark them done." : " quando li segni come completati."}
               </div>
             </div>
             <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
@@ -1134,6 +1290,8 @@ export default function App() {
                   onDayClick={openDayModal}
                   onPrevMonth={prevMonth}
                   onNextMonth={nextMonth}
+                  tx={tx}
+                  lang={lang}
                 />
               ))}
             </div>
@@ -1219,35 +1377,35 @@ export default function App() {
 
       {/* ── ADD/EDIT LEAD MODAL ── */}
       {showAddLead && (
-        <Modal title={editLead ? "Edit Lead" : "Add New Lead"} onClose={() => { setShowAddLead(false); setPrevNotes(null); }}>
-          <Inp label="Contact Name *" type="text"   placeholder="Jane Smith"        value={leadForm.name}    onChange={e => setLeadForm(f => ({ ...f, name:    e.target.value }))} />
-          <Inp label="Company"        type="text"   placeholder="Acme Corp"         value={leadForm.company} onChange={e => setLeadForm(f => ({ ...f, company: e.target.value }))} />
-          <Inp label="Phone"          type="text"   placeholder="+1 (555) 000-0000" value={leadForm.phone}   onChange={e => setLeadForm(f => ({ ...f, phone:   e.target.value }))} />
+        <Modal title={editLead ? tx.modal_edit_lead : tx.modal_add_lead} onClose={() => { setShowAddLead(false); setPrevNotes(null); }}>
+          <Inp label={tx.field_contact} type="text"   placeholder="Jane Smith"        value={leadForm.name}    onChange={e => setLeadForm(f => ({ ...f, name:    e.target.value }))} />
+          <Inp label={tx.field_company} type="text"   placeholder="Acme Corp"         value={leadForm.company} onChange={e => setLeadForm(f => ({ ...f, company: e.target.value }))} />
+          <Inp label={tx.field_phone}   type="text"   placeholder="+1 (555) 000-0000" value={leadForm.phone}   onChange={e => setLeadForm(f => ({ ...f, phone:   e.target.value }))} />
           <div style={{ display: "flex", gap: 10 }}>
             <div style={{ flex: 1 }}>
-              <Inp label="Stage" as="select" value={leadForm.stage} onChange={e => setLeadForm(f => ({ ...f, stage: e.target.value }))}>
+              <Inp label={tx.field_stage} as="select" value={leadForm.stage} onChange={e => setLeadForm(f => ({ ...f, stage: e.target.value }))}>
                 {STAGES.map(s => <option key={s}>{s}</option>)}
               </Inp>
             </div>
             <div style={{ flex: 1 }}>
-              <Inp label="Assigned Rep" as="select" value={leadForm.rep} onChange={e => setLeadForm(f => ({ ...f, rep: e.target.value }))}>
+              <Inp label={tx.field_rep} as="select" value={leadForm.rep} onChange={e => setLeadForm(f => ({ ...f, rep: e.target.value }))}>
                 {REPS.map(r => <option key={r}>{r}</option>)}
               </Inp>
             </div>
           </div>
-          <Inp label="Deal Value ($)" type="number" placeholder="0" value={leadForm.value} onChange={e => setLeadForm(f => ({ ...f, value: e.target.value }))} />
+          <Inp label={tx.field_value} type="number" placeholder="0" value={leadForm.value} onChange={e => setLeadForm(f => ({ ...f, value: e.target.value }))} />
 
           {/* Notes with AI Rewrite button (Change C) */}
           <div style={{ marginBottom: 12 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
-              <div style={{ fontSize: 12, color: "#777", fontWeight: 500 }}>Notes</div>
+              <div style={{ fontSize: 12, color: "#777", fontWeight: 500 }}>{tx.field_notes}</div>
               <div style={{ display: "flex", gap: 6 }}>
                 {prevNotes !== null && (
                   <button
                     onClick={() => { setLeadForm(f => ({ ...f, notes: prevNotes })); setPrevNotes(null); }}
                     style={{ background: "none", border: "1px solid #2a2a2a", borderRadius: 6, color: "#555", fontSize: 11, padding: "2px 8px", cursor: "pointer" }}
                   >
-                    ↩ Restore
+                    {tx.restore}
                   </button>
                 )}
                 <button
@@ -1268,15 +1426,15 @@ export default function App() {
             <textarea
               value={leadForm.notes}
               onChange={e => setLeadForm(f => ({ ...f, notes: e.target.value }))}
-              placeholder="Call notes, next steps..."
+              placeholder={tx.notes_ph}
               style={{ width: "100%", padding: "7px 10px", borderRadius: 7, border: "1px solid #2a2a2a", background: "#0d0d0d", color: "#e0e0e0", fontSize: 14, boxSizing: "border-box", minHeight: 80, resize: "vertical", fontFamily: "inherit" }}
             />
           </div>
 
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 8 }}>
-            <button style={BTN.secondary} onClick={() => { setShowAddLead(false); setPrevNotes(null); }}>Cancel</button>
+            <button style={BTN.secondary} onClick={() => { setShowAddLead(false); setPrevNotes(null); }}>{tx.cancel}</button>
             <button style={{ ...BTN.primary, opacity: saving ? 0.6 : 1 }} onClick={saveLead} disabled={saving}>
-              {saving ? "Saving…" : editLead ? "Save Changes" : "Add Lead"}
+              {saving ? tx.saving : editLead ? tx.save_changes : tx.add_lead_btn}
             </button>
           </div>
         </Modal>
@@ -1284,24 +1442,24 @@ export default function App() {
 
       {/* ── LOG CALLS MODAL ── */}
       {showLogCall && (
-        <Modal title="Log Call Session" onClose={() => setShowLogCall(false)}>
-          <div style={{ fontSize: 13, color: "#555", marginBottom: 14 }}>Record today&apos;s activity for any team member.</div>
-          <Inp label="Rep" as="select" value={logForm.rep} onChange={e => setLogForm(f => ({ ...f, rep: e.target.value }))}>
+        <Modal title={tx.modal_log} onClose={() => setShowLogCall(false)}>
+          <div style={{ fontSize: 13, color: "#555", marginBottom: 14 }}>{tx.log_desc}</div>
+          <Inp label={tx.log_rep} as="select" value={logForm.rep} onChange={e => setLogForm(f => ({ ...f, rep: e.target.value }))}>
             {REPS.map(r => <option key={r}>{r}</option>)}
           </Inp>
-          <Inp label="Date" type="date" value={logForm.date || new Date().toISOString().slice(0, 10)} onChange={e => setLogForm(f => ({ ...f, date: e.target.value }))} />
+          <Inp label={tx.log_date} type="date" value={logForm.date || new Date().toISOString().slice(0, 10)} onChange={e => setLogForm(f => ({ ...f, date: e.target.value }))} />
           <div style={{ display: "flex", gap: 10 }}>
-            <div style={{ flex: 1 }}><Inp label="Total Calls *" type="number" min="0" placeholder="0" value={logForm.calls}     onChange={e => setLogForm(f => ({ ...f, calls:     e.target.value }))} /></div>
-            <div style={{ flex: 1 }}><Inp label="Connected"     type="number" min="0" placeholder="0" value={logForm.connected} onChange={e => setLogForm(f => ({ ...f, connected: e.target.value }))} /></div>
+            <div style={{ flex: 1 }}><Inp label={tx.log_calls}     type="number" min="0" placeholder="0" value={logForm.calls}     onChange={e => setLogForm(f => ({ ...f, calls:     e.target.value }))} /></div>
+            <div style={{ flex: 1 }}><Inp label={tx.log_connected} type="number" min="0" placeholder="0" value={logForm.connected} onChange={e => setLogForm(f => ({ ...f, connected: e.target.value }))} /></div>
           </div>
           <div style={{ display: "flex", gap: 10 }}>
-            <div style={{ flex: 1 }}><Inp label="Demos Set" type="number" min="0" placeholder="0" value={logForm.demos}  onChange={e => setLogForm(f => ({ ...f, demos:  e.target.value }))} /></div>
-            <div style={{ flex: 1 }}><Inp label="Closes"    type="number" min="0" placeholder="0" value={logForm.closes} onChange={e => setLogForm(f => ({ ...f, closes: e.target.value }))} /></div>
+            <div style={{ flex: 1 }}><Inp label={tx.log_demos}   type="number" min="0" placeholder="0" value={logForm.demos}  onChange={e => setLogForm(f => ({ ...f, demos:  e.target.value }))} /></div>
+            <div style={{ flex: 1 }}><Inp label={tx.log_closes}  type="number" min="0" placeholder="0" value={logForm.closes} onChange={e => setLogForm(f => ({ ...f, closes: e.target.value }))} /></div>
           </div>
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 8 }}>
-            <button style={BTN.secondary} onClick={() => { setShowLogCall(false); setLogForm(EMPTY_LOG); }}>Cancel</button>
+            <button style={BTN.secondary} onClick={() => { setShowLogCall(false); setLogForm(EMPTY_LOG); }}>{tx.cancel}</button>
             <button style={{ ...BTN.primary, opacity: saving ? 0.6 : 1 }} onClick={saveLog} disabled={saving}>
-              {saving ? "Saving…" : "Log Session"}
+              {saving ? tx.saving : tx.log_btn}
             </button>
           </div>
         </Modal>
@@ -1310,26 +1468,26 @@ export default function App() {
       {/* ── DAY TRACKING MODAL ── */}
       {showDayModal && selectedDay && (
         <Modal
-          title={`${selectedDay.rep} — ${new Date(selectedDay.date + "T12:00:00").toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}`}
+          title={`${selectedDay.rep} — ${new Date(selectedDay.date + "T12:00:00").toLocaleDateString(lang === "it" ? "it-IT" : "en-US", { weekday: "long", month: "long", day: "numeric" })}`}
           onClose={() => setShowDayModal(false)}
         >
           {dayForm.is_done && (
             <div style={{ background: "#0a2a15", border: "1px solid #2a7a3a", borderRadius: 8, padding: "8px 12px", marginBottom: 14, fontSize: 13, color: "#3dd68c", fontWeight: 600 }}>
-              ✓ This day is marked complete
+              {tx.day_done_banner}
             </div>
           )}
-          <div style={{ fontSize: 12, color: "#555", marginBottom: 6, fontWeight: 500 }}>📝 To-do&apos;s for the day</div>
+          <div style={{ fontSize: 12, color: "#555", marginBottom: 6, fontWeight: 500 }}>{tx.day_todos_label}</div>
           <textarea
             value={dayForm.todos}
             onChange={e => setDayForm(f => ({ ...f, todos: e.target.value }))}
-            placeholder={"What do you need to get done today?\n\n- \n- \n- "}
+            placeholder={tx.day_todos_ph}
             style={{ width: "100%", minHeight: 110, padding: "9px 11px", borderRadius: 7, border: "1px solid #2a2a2a", background: "#0d0d0d", color: "#e0e0e0", fontSize: 13, boxSizing: "border-box", resize: "vertical", fontFamily: "inherit", lineHeight: 1.6 }}
           />
-          <div style={{ fontSize: 12, color: "#555", marginBottom: 6, fontWeight: 500, marginTop: 16 }}>✅ What I got done</div>
+          <div style={{ fontSize: 12, color: "#555", marginBottom: 6, fontWeight: 500, marginTop: 16 }}>{tx.day_done_label}</div>
           <textarea
             value={dayForm.completed_notes}
             onChange={e => setDayForm(f => ({ ...f, completed_notes: e.target.value }))}
-            placeholder={"What did you actually accomplish today?\n\n- \n- \n- "}
+            placeholder={tx.day_done_ph}
             style={{ width: "100%", minHeight: 110, padding: "9px 11px", borderRadius: 7, border: "1px solid #2a2a2a", background: "#0d0d0d", color: "#e0e0e0", fontSize: 13, boxSizing: "border-box", resize: "vertical", fontFamily: "inherit", lineHeight: 1.6 }}
           />
           <label style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 18, cursor: "pointer", padding: "10px 12px", background: dayForm.is_done ? "#0a2a15" : "#111", borderRadius: 8, border: `1px solid ${dayForm.is_done ? "#2a7a3a" : "#2a2a2a"}`, transition: "all .2s" }}>
@@ -1340,13 +1498,13 @@ export default function App() {
               style={{ width: 16, height: 16, cursor: "pointer", accentColor: "#3dd68c" }}
             />
             <span style={{ fontSize: 13, color: dayForm.is_done ? "#3dd68c" : "#888", fontWeight: 600 }}>
-              {dayForm.is_done ? "✓ Marked as complete — day will glow green" : "Mark this day as complete"}
+              {dayForm.is_done ? tx.day_mark_done : tx.day_mark}
             </span>
           </label>
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 16 }}>
-            <button style={BTN.secondary} onClick={() => setShowDayModal(false)}>Cancel</button>
+            <button style={BTN.secondary} onClick={() => setShowDayModal(false)}>{tx.cancel}</button>
             <button style={{ ...BTN.primary, opacity: savingDay ? 0.6 : 1 }} onClick={saveDayEntry} disabled={savingDay}>
-              {savingDay ? "Saving…" : "Save"}
+              {savingDay ? tx.saving : tx.day_save}
             </button>
           </div>
         </Modal>
@@ -1365,7 +1523,7 @@ export default function App() {
           <Inp label={tx.asset_link_field} type="url" placeholder="https://..." value={assetForm.link} onChange={e => setAssetForm(f => ({ ...f, link: e.target.value }))} />
           <Inp label={tx.asset_notes_field} as="textarea" placeholder="..." value={assetForm.notes} onChange={e => setAssetForm(f => ({ ...f, notes: e.target.value }))} />
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 8 }}>
-            <button style={BTN.secondary} onClick={() => setShowAddAsset(false)}>Cancel</button>
+            <button style={BTN.secondary} onClick={() => setShowAddAsset(false)}>{tx.cancel}</button>
             <button style={{ ...BTN.primary, opacity: savingAsset ? 0.6 : 1 }} onClick={saveAsset} disabled={savingAsset}>
               {savingAsset ? "Saving…" : tx.save_asset_btn}
             </button>
